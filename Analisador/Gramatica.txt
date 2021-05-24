@@ -1,0 +1,15 @@
+<program> ::= <block> | e
+<block> ::= <statements>
+<statements> ::= <statements> <statement> | <statement>
+<statement> ::= <chardeclaration> | <intdeclaration> | <floatdeclaration>
+<ids> ::= ID ASSIGN expression COMMA <ids> | ID COMMA <ids> | ID | e
+<chardeclaration> ::= char <ids> SEMI
+<intdeclaration> ::= int <ids> SEMI
+<floatdeclaration> ::= float <ids> SEMI
+<expression> ::= <literal> | <location> |
+		 <expression> PLUS <expression> |
+		 <expression> MINUS <expression> |
+		 <expression> MUL <expression> |
+		 <expression> DIVIDE <expression> 
+<location> ::= ID
+<literal> ::= CHAR | INT | FLOAT
