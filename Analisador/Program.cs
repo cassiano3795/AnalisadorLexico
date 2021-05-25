@@ -11,7 +11,7 @@ namespace Analisador
         static void Main(string[] args)
         {
             var parser = CParser.CParser.GetParser();
-            var result = parser.Parse("int _8; int a;");
+            var result = parser.Parse("");
 
             var tree = result.SyntaxTree;
             var graphviz = new GraphVizEBNFSyntaxTreeVisitor<Tokens>();

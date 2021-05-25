@@ -10,6 +10,12 @@ namespace Analisador.Model
             VariableName = name;
         }
 
+        public IdentifierStatement(string name, Expression value)
+        {
+            VariableName = name;
+            Value = value;
+        }
+
         public string VariableName { get; set; }
 
         public Expression Value { get; set; }

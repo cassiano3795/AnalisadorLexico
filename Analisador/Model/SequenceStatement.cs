@@ -23,7 +23,7 @@ namespace Analisador.Model
             Statements = seq;
         }
 
-        private List<AST> Statements { get; }
+        public List<AST> Statements { get; }
         public int Count => Statements.Count;
 
         public AsnWriter.Scope CompilerScope { get; set; }

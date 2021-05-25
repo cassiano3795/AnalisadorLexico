@@ -17,13 +17,13 @@ namespace Analisador.Lexer
         SEMI = 4,
 
         [Lexeme(GenericToken.String)]
-        CHAR = 5,
+        STRING = 5,
 
         [Lexeme(GenericToken.Int)]
         INTEGER = 6,
 
         [Lexeme(GenericToken.Double)]
-        FLOAT = 7,
+        FLOATNUMBER = 7,
 
         [Lexeme(GenericToken.SugarToken, "+")]
         PLUS = 8,
@@ -38,9 +38,14 @@ namespace Analisador.Lexer
         DIVIDE = 11,
 
         [Lexeme(GenericToken.KeyWord, "int")]
-        INT = 12
+        INT = 12,
 
-        //[Lexeme("[ \\t]+", true)]
-        //WS = 12,
+        [Lexeme(GenericToken.KeyWord, "char")]
+        CHAR = 13,
+
+        [Lexeme(GenericToken.KeyWord, "float")]
+        FLOAT = 14,
+
+        EOS = 15,
     }
 }
