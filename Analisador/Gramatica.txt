@@ -1,12 +1,11 @@
-<program> ::= <block>
-<block> ::= <statements>
+<program> ::= <statements>
 
 <statements> ::= <statement> <statements>+ | <statement>
 <statement> ::= <chardeclaration> | <intdeclaration> | <floatdeclaration>
 
-<chardeclaration> ::= char <ids> SEMI
-<intdeclaration> ::= int <ids> SEMI
-<floatdeclaration> ::= float <ids> SEMI
+<chardeclaration> ::= CHAR <ids> SEMI
+<intdeclaration> ::= INT <ids> SEMI
+<floatdeclaration> ::= FLOAT <ids> SEMI
 
 <ids> ::= ID | ID ASSIGN <expression> | ID ASSIGN <expression> COMMA <ids>+ | ID COMMA <ids>+
 
@@ -14,5 +13,5 @@
 		 
 <operand> ::= <literal> | <location>
 
-<literal> ::= CHAR | INT | FLOAT
+<literal> ::= STRING | INTEGER | FLOATNUMBER
 <location> ::= ID

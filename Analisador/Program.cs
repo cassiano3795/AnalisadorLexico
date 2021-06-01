@@ -11,14 +11,30 @@ namespace Analisador
         static void Main(string[] args)
         {
             var parser = CParser.CParser.GetParser();
-            var result = parser.Parse("");
+            var result = parser.Parse(" ");
 
-            var tree = result.SyntaxTree;
-            var graphviz = new GraphVizEBNFSyntaxTreeVisitor<Tokens>();
-            var root = graphviz.VisitTree(tree);
-            string graph = graphviz.Graph.Compile();
-            File.Delete("c:\\temp\\tree.dot");
-            File.AppendAllText("c:\\temp\\tree.dot", graph);
+            var currentDirectory = Directory.GetCurrentDirectory();
+
+            if (result.IsOk)
+            {
+                var tree = result.SyntaxTree;
+                var graphviz = new GraphVizEBNFSyntaxTreeVisitor<Tokens>();
+                var root = graphviz.VisitTree(tree);
+                string graph = graphviz.Graph.Compile();
+
+                var path = Path.Combine(currentDirectory, "tree.dot");
+
+                File.Delete(path);
+                File.AppendAllText(path, graph);
+            }
+            else
+            {
+                var path = Path.Combine(currentDirectory, "error.txt");
+
+                File.Delete(path);
+                File.AppendAllText(path, result.Errors.ToString());
+            }
+
         }
     }
 }

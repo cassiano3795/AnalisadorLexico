@@ -11,16 +11,10 @@ namespace Analisador.CParser
 {
     public class CParser
     {
-        [Production("program: block")]
+        [Production("program: statements")]
         public AST Program(AST block)
         {
             return block;
-        }
-
-        [Production("block: statements")]
-        public AST Block(AST statements)
-        {
-            return statements;
         }
 
         [Production("statements: statement statements+")]
