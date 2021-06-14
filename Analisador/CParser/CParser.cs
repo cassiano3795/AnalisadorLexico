@@ -17,7 +17,7 @@ namespace Analisador.CParser
             return block;
         }
 
-        [Production("statements: statement statements+")]
+        [Production("statements: statement statements*")]
         public AST Statements(AST statement, List<AST> statements)
         {
             var seq = new SequenceStatement(statement);
@@ -42,6 +42,9 @@ namespace Analisador.CParser
         [Production("statement: intdeclaration")]
         [Production("statement: chardeclaration")]
         [Production("statement: floatdeclaration")]
+        [Production("statement: ifstatement")]
+        [Production("statement: assignstatement")]
+        //[Production("statement: switchstatement")]
         public AST Statement(AST declaration)
         {
             return declaration;
@@ -86,22 +89,46 @@ namespace Analisador.CParser
         }
 
         [Production("floatdeclaration: FLOAT ids SEMI")]
-        public AST FloatDeclaration(Token<Tokens> floaToken, AST statement, Token<Tokens> semiToken)
+        public AST FloatDeclaration(Token<Tokens> floatToken, AST statement, Token<Tokens> semiToken)
         {
             FloatDeclarationStatement floatDeclaration;
 
             if (statement is SequenceStatement sequenceStatement)
                 floatDeclaration = new FloatDeclarationStatement(sequenceStatement.Statements)
                 {
-                    Position = floaToken.Position
+                    Position = floatToken.Position
                 };
             else
                 floatDeclaration = new FloatDeclarationStatement(statement)
                 {
-                    Position = floaToken.Position
+                    Position = floatToken.Position
                 };
 
             return floatDeclaration;
+        }
+
+        [Production("ifstatement: IF LPAREN CParser_expressions RPAREN LBRACKET statements RBRACKET elsestatement?")]
+        public AST IfStatement(Token<Tokens> ifToken, Token<Tokens> lparenToken, Expression condition, Token<Tokens> rparenToken, Token<Tokens> lbracketToken, AST thenStatement, Token<Tokens> rbracketToken, ValueOption<AST> elseStatement)
+        {
+            IfStatement ifStatement;
+
+            var elseStm = elseStatement.Match(ast => ast, () => null);
+
+            ifStatement = new IfStatement(condition, thenStatement, elseStm);
+
+            return ifStatement;
+        }
+
+        [Production("elsestatement: ELSE ifstatement")]
+        public AST ElseStatement(Token<Tokens> elseToken, AST ifStatement)
+        {
+            return ifStatement;
+        }
+
+        [Production("elsestatement: ELSE LBRACKET statements RBRACKET")]
+        public AST ElseStatement(Token<Tokens> elseToken, Token<Tokens> lbracketToken, AST statements, Token<Tokens> rbracketToken)
+        {
+            return statements;
         }
 
         [Production("ids: ID")]
@@ -113,31 +140,7 @@ namespace Analisador.CParser
             };
         }
 
-        [Production("ids: ID ASSIGN expression")]
-        public AST IdDeclaration(Token<Tokens> idToken, Token<Tokens> assignToken, Expression operand)
-        {
-            return new IdentifierStatement(idToken.StringWithoutQuotes, operand)
-            {
-                Position = idToken.Position
-            };
-        }
-
-        [Production("ids: ID ASSIGN expression COMMA ids+")]
-        public AST IdDeclaration(Token<Tokens> idToken, Token<Tokens> assignToken, Expression operand, Token<Tokens> commaToken, List<AST> ids)
-        {
-            var assign = new IdentifierStatement(idToken.StringWithoutQuotes, operand)
-            {
-                Position = idToken.Position
-            };
-
-            var sequence = new SequenceStatement(assign);
-
-            sequence.AddRange(ids);
-
-            return sequence;
-        }
-
-        [Production("ids: ID COMMA ids+")]
+        [Production("ids: ID COMMA ids*")]
         public AST IdDeclaration(Token<Tokens> idToken, Token<Tokens> commaToken, List<AST> ids)
         {
             var identifier = new IdentifierStatement(idToken.StringWithoutQuotes)
@@ -150,6 +153,15 @@ namespace Analisador.CParser
             sequence.AddRange(ids);
 
             return sequence;
+        }
+
+        [Production("assignstatement: ID ASSIGN expression SEMI")]
+        public AST AssignStatement(Token<Tokens> idToken, Token<Tokens> assignToken, Expression operand, Token<Tokens> semiToken)
+        {
+            return new AssignStatement(idToken.StringWithoutQuotes, operand)
+            {
+                Position = idToken.Position
+            };
         }
 
         [Production("expression: operand")]
@@ -191,6 +203,31 @@ namespace Analisador.CParser
             {
                 Position = floatToken.Position
             };
+        }
+
+
+        [Operation((int)Tokens.LESSER, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.LESSEROREQUAL, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.GREATER, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.GREATEROREQUAL, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.EQUALS, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.DIFFERENT, Affix.InFix, Associativity.Right, 50)]
+        public AST BinaryComparisonExpression(AST left, Token<Tokens> operatorToken,
+            AST right)
+        {
+            var oper = operatorToken.TokenID switch
+            {
+                Tokens.LESSER => BinaryOperator.LESSER,
+                Tokens.LESSEROREQUAL => BinaryOperator.LESSEROREQUAL,
+                Tokens.GREATER => BinaryOperator.GREATER,
+                Tokens.GREATEROREQUAL => BinaryOperator.GREATEROREQUAL,
+                Tokens.EQUALS => BinaryOperator.EQUALS,
+                Tokens.DIFFERENT => BinaryOperator.DIFFERENT,
+                _ => BinaryOperator.ADD
+            };
+
+            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            return operation;
         }
 
         public static Parser<Tokens, AST> GetParser()

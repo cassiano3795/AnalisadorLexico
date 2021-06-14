@@ -11,7 +11,8 @@ namespace Analisador
         static void Main(string[] args)
         {
             var parser = CParser.CParser.GetParser();
-            var result = parser.Parse(" ");
+
+            var result = parser.Parse("int a;");
 
             var currentDirectory = Directory.GetCurrentDirectory();
 

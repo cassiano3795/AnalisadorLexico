@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="sly" Version="2.7.0" />
+    <Reference Include="sly">
+      <HintPath>..\..\..\..\..\..\..\..\Git\csly\sly\bin\Debug\netstandard2.0\sly.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
