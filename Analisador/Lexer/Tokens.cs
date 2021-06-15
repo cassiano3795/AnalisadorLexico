@@ -50,6 +50,9 @@ namespace Analisador.Lexer
         [Lexeme(GenericToken.KeyWord, "default")]
         DEFAULT,
 
+        [Lexeme(GenericToken.KeyWord, "return")]
+        RETURN,
+
         #endregion
 
         #region SugarTokens
@@ -90,13 +93,13 @@ namespace Analisador.Lexer
         [Lexeme(GenericToken.SugarToken, "/")]
         DIVIDE,
 
-        [Lexeme(GenericToken.SugarToken, ">")] 
+        [Lexeme(GenericToken.SugarToken, ">")]
         GREATER,
 
         [Lexeme(GenericToken.SugarToken, ">=")]
         GREATEROREQUAL,
 
-        [Lexeme(GenericToken.SugarToken, "<")] 
+        [Lexeme(GenericToken.SugarToken, "<")]
         LESSER,
 
         [Lexeme(GenericToken.SugarToken, "<=")]

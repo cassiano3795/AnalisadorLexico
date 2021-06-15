@@ -18,7 +18,7 @@
 <cases> ::= CASE <literal> COLON <statements> <finish> SEMI <cases>* | DEFAULT COLON <statements> <finish> SEMI
 <finish> ::= BREAK | <return>
 
-<return> ::= RETURN <operand> | RETURN
+<return> ::= RETURN <operand>?
 
 <ids> ::= ID | ID COMMA <ids>+ | <assign> <ids>+
 <assign> ::= ID ASSIGN <expression> | ID ASSIGN <expression> COMMA <ids>+

@@ -17,7 +17,13 @@ namespace Analisador.CParser
             return block;
         }
 
-        [Production("statements: statement statements*")]
+        [Production("statements: statement")]
+        public AST Statements(AST statement)
+        {
+            return statement;
+        }
+
+        [Production("statements: statement statements+")]
         public AST Statements(AST statement, List<AST> statements)
         {
             var seq = new SequenceStatement(statement);
@@ -33,18 +39,12 @@ namespace Analisador.CParser
             return seq;
         }
 
-        [Production("statements: statement")]
-        public AST Statements(AST statement)
-        {
-            return statement;
-        }
-
         [Production("statement: intdeclaration")]
         [Production("statement: chardeclaration")]
         [Production("statement: floatdeclaration")]
         [Production("statement: ifstatement")]
-        [Production("statement: assignstatement")]
-        //[Production("statement: switchstatement")]
+        //[Production("statement: assignstatement")]
+        [Production("statement: switchstatement")]
         public AST Statement(AST declaration)
         {
             return declaration;
@@ -131,6 +131,90 @@ namespace Analisador.CParser
             return statements;
         }
 
+        [Production("switchstatement: SWITCH LPAREN ID RPAREN LBRACKET cases RBRACKET")]
+        public AST SwitchStatement(Token<Tokens> switchToken, Token<Tokens> lparenToken, Token<Tokens> idToken,
+            Token<Tokens> rparenToken, Token<Tokens> lbracketToken, AST cases, Token<Tokens> rbracketToken)
+        {
+            SwitchStatement switchStatement;
+
+            var identifierStatement = new IdentifierStatement(idToken.StringWithoutQuotes);
+
+            if (cases is SequenceStatement sequenceStatement)
+                switchStatement = new SwitchStatement(identifierStatement, sequenceStatement.Statements);
+            else
+                switchStatement = new SwitchStatement(identifierStatement, new List<AST> { cases });
+
+            return switchStatement;
+        }
+
+        [Production("cases: CASE literal COLON statements finish SEMI")]
+        public AST CaseStatement(Token<Tokens> caseToken, AST literal, Token<Tokens> colonToken, AST statements,
+            AST finish, Token<Tokens> semiToken)
+        {
+            var @case = new CaseStatement(literal, statements);
+
+            return @case;
+        }
+
+        [Production("cases: CASE literal COLON statements finish SEMI cases+")]
+        public AST CaseStatement(Token<Tokens> caseToken, AST literal, Token<Tokens> colonToken, AST statements,
+            AST finish, Token<Tokens> semiToken, List<AST> cases)
+        {
+            var c = new CaseStatement(literal, statements);
+
+            var seq = new SequenceStatement(c);
+
+            foreach (var @case in cases)
+            {
+                if (@case is SequenceStatement sequenceStatement)
+                    seq.AddRange(sequenceStatement.Statements);
+                else
+                    seq.Add(@case);
+            }
+
+            return seq;
+        }
+
+        [Production("cases: DEFAULT COLON statements finish SEMI")]
+        public AST CaseStatement(Token<Tokens> defaulToken, Token<Tokens> colonToken, AST statements, AST finish, Token<Tokens> semiToken)
+        {
+            return new DefaultCaseStatement(null, statements)
+            {
+                Position = defaulToken.Position
+            };
+        }
+
+        [Production("finish: BREAK")]
+        public AST FinishStatement(Token<Tokens> breakToken)
+        {
+            return null;
+        }
+
+        [Production("finish: return")]
+        public AST FinishStatement(AST returnStatement)
+        {
+            return returnStatement;
+        }
+
+        [Production("return: RETURN operand?")]
+        public AST ReturnStatement(Token<Tokens> returnToken, ValueOption<AST> operand)
+        {
+            var operandValue = operand.Match(ast => ast, () => null);
+
+            return new ReturnStatement(operandValue);
+        }
+
+        [Production("assignstatement: location ASSIGN expression SEMI")]
+        public AST AssignStatement(AST location, Token<Tokens> assignToken, Expression operand, Token<Tokens> semiToken)
+        {
+            var identifier = location as IdentifierStatement;
+
+            return new AssignStatement(identifier.VariableName, operand)
+            {
+                Position = identifier.Position
+            };
+        }
+
         [Production("ids: ID")]
         public AST IdDeclaration(Token<Tokens> idToken)
         {
@@ -140,7 +224,7 @@ namespace Analisador.CParser
             };
         }
 
-        [Production("ids: ID COMMA ids*")]
+        [Production("ids: ID COMMA ids+")]
         public AST IdDeclaration(Token<Tokens> idToken, Token<Tokens> commaToken, List<AST> ids)
         {
             var identifier = new IdentifierStatement(idToken.StringWithoutQuotes)
@@ -155,15 +239,6 @@ namespace Analisador.CParser
             return sequence;
         }
 
-        [Production("assignstatement: ID ASSIGN expression SEMI")]
-        public AST AssignStatement(Token<Tokens> idToken, Token<Tokens> assignToken, Expression operand, Token<Tokens> semiToken)
-        {
-            return new AssignStatement(idToken.StringWithoutQuotes, operand)
-            {
-                Position = idToken.Position
-            };
-        }
-
         [Production("expression: operand")]
         public AST Expression(Expression operand)
         {
@@ -175,6 +250,13 @@ namespace Analisador.CParser
         public AST Operand(AST literal)
         {
             return literal;
+        }
+
+        [Operand]
+        [Production("operand: location")]
+        public AST OperandLocation(AST location)
+        {
+            return location;
         }
 
 
@@ -202,6 +284,15 @@ namespace Analisador.CParser
             return new FloatConstant(double.Parse(floatToken.StringWithoutQuotes.Replace(",", "").Replace(".", ",")))
             {
                 Position = floatToken.Position
+            };
+        }
+
+        [Production("location: ID")]
+        public AST Location(Token<Tokens> idToken)
+        {
+            return new IdentifierStatement(idToken.StringWithoutQuotes)
+            {
+                Position = idToken.Position
             };
         }
 
