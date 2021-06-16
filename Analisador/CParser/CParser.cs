@@ -43,7 +43,7 @@ namespace Analisador.CParser
         [Production("statement: chardeclaration")]
         [Production("statement: floatdeclaration")]
         [Production("statement: ifstatement")]
-        //[Production("statement: assignstatement")]
+        [Production("statement: assignstatement")]
         [Production("statement: switchstatement")]
         public AST Statement(AST declaration)
         {
