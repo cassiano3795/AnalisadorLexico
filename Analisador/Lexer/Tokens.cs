@@ -60,6 +60,18 @@ namespace Analisador.Lexer
         [Lexeme(GenericToken.SugarToken, "=")]
         ASSIGN,
 
+        [Lexeme(GenericToken.SugarToken, "+=")]
+        PLUSASSIGN,
+
+        [Lexeme(GenericToken.SugarToken, "-=")]
+        MINUSASSIGN,
+
+        [Lexeme(GenericToken.SugarToken, "*=")]
+        MULASSIGN,
+
+        [Lexeme(GenericToken.SugarToken, "=/")]
+        DIVIDEASSIGN,
+
         [Lexeme(GenericToken.SugarToken, ",")]
         COMMA,
 

@@ -8,16 +8,17 @@ namespace Analisador.Model
 {
     public class AssignStatement : Statement
     {
-        public AssignStatement(string variableName, Expression value)
+        public AssignStatement(string variableName, AssignType assignType, Expression value)
         {
             VariableName = variableName;
+            AssignType = assignType;
             Value = value;
         }
 
         public string VariableName { get; set; }
-
+        public AssignType AssignType { get; set; }
         public Expression Value { get; set; }
-        public bool IsVariableCreation { get; internal set; }
+
         public AsnWriter.Scope CompilerScope { get; set; }
 
         public LexerPosition Position { get; set; }

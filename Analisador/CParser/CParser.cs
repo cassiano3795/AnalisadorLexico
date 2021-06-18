@@ -107,14 +107,14 @@ namespace Analisador.CParser
             return floatDeclaration;
         }
 
-        [Production("ifstatement: IF LPAREN CParser_expressions RPAREN LBRACKET statements RBRACKET elsestatement?")]
-        public AST IfStatement(Token<Tokens> ifToken, Token<Tokens> lparenToken, Expression condition, Token<Tokens> rparenToken, Token<Tokens> lbracketToken, AST thenStatement, Token<Tokens> rbracketToken, ValueOption<AST> elseStatement)
+        [Production("ifstatement: IF LPAREN CParser_expressions RPAREN LBRACKET statements? RBRACKET elsestatement?")]
+        public AST IfStatement(Token<Tokens> ifToken, Token<Tokens> lparenToken, Expression condition, Token<Tokens> rparenToken, Token<Tokens> lbracketToken, ValueOption<AST> thenStatement, Token<Tokens> rbracketToken, ValueOption<AST> elseStatement)
         {
-            IfStatement ifStatement;
+            var then = thenStatement.Match(ast => ast, () => null);
 
             var elseStm = elseStatement.Match(ast => ast, () => null);
 
-            ifStatement = new IfStatement(condition, thenStatement, elseStm);
+            var ifStatement = new IfStatement(condition, then, elseStm);
 
             return ifStatement;
         }
@@ -125,10 +125,10 @@ namespace Analisador.CParser
             return ifStatement;
         }
 
-        [Production("elsestatement: ELSE LBRACKET statements RBRACKET")]
-        public AST ElseStatement(Token<Tokens> elseToken, Token<Tokens> lbracketToken, AST statements, Token<Tokens> rbracketToken)
+        [Production("elsestatement: ELSE LBRACKET statements? RBRACKET")]
+        public AST ElseStatement(Token<Tokens> elseToken, Token<Tokens> lbracketToken, ValueOption<AST> statements, Token<Tokens> rbracketToken)
         {
-            return statements;
+            return statements.Match(ast => ast, () => null);
         }
 
         [Production("switchstatement: SWITCH LPAREN ID RPAREN LBRACKET cases RBRACKET")]
@@ -147,7 +147,7 @@ namespace Analisador.CParser
             return switchStatement;
         }
 
-        [Production("cases: CASE literal COLON statements finish SEMI")]
+        [Production("cases: CASE literal COLON LBRACKET [d] statements finish SEMI RBRACKET [d]")]
         public AST CaseStatement(Token<Tokens> caseToken, AST literal, Token<Tokens> colonToken, AST statements,
             AST finish, Token<Tokens> semiToken)
         {
@@ -156,7 +156,7 @@ namespace Analisador.CParser
             return @case;
         }
 
-        [Production("cases: CASE literal COLON statements finish SEMI cases+")]
+        [Production("cases: CASE literal COLON LBRACKET [d] statements finish SEMI RBRACKET [d] cases+")]
         public AST CaseStatement(Token<Tokens> caseToken, AST literal, Token<Tokens> colonToken, AST statements,
             AST finish, Token<Tokens> semiToken, List<AST> cases)
         {
@@ -175,7 +175,7 @@ namespace Analisador.CParser
             return seq;
         }
 
-        [Production("cases: DEFAULT COLON statements finish SEMI")]
+        [Production("cases: DEFAULT COLON LBRACKET [d] statements finish SEMI RBRACKET [d]")]
         public AST CaseStatement(Token<Tokens> defaulToken, Token<Tokens> colonToken, AST statements, AST finish, Token<Tokens> semiToken)
         {
             return new DefaultCaseStatement(null, statements)
@@ -204,15 +204,26 @@ namespace Analisador.CParser
             return new ReturnStatement(operandValue);
         }
 
-        [Production("assignstatement: location ASSIGN expression SEMI")]
-        public AST AssignStatement(AST location, Token<Tokens> assignToken, Expression operand, Token<Tokens> semiToken)
+        [Production("assignstatement: location assign expression SEMI")]
+        [Production("assignstatement: location assign CParser_expressions SEMI")]
+        public AST AssignStatement(AST location, AssignType assignType, Expression expression, Token<Tokens> semiToken)
         {
             var identifier = location as IdentifierStatement;
 
-            return new AssignStatement(identifier.VariableName, operand)
+            return new AssignStatement(identifier.VariableName, assignType, expression)
             {
                 Position = identifier.Position
             };
+        }
+
+        [Production("assign: ASSIGN")]
+        [Production("assign: PLUSASSIGN")]
+        [Production("assign: MINUSASSIGN")]
+        [Production("assign: MULASSIGN")]
+        [Production("assign: DIVIDEASSIGN")]
+        public AST Assign(Token<Tokens> assignToken)
+        {
+            return new AssignType(assignToken);
         }
 
         [Production("ids: ID")]
@@ -316,6 +327,54 @@ namespace Analisador.CParser
                 Tokens.DIFFERENT => BinaryOperator.DIFFERENT,
                 _ => BinaryOperator.ADD
             };
+
+            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            return operation;
+        }
+
+        [Operation((int)Tokens.PLUS, Affix.InFix, Associativity.Right, 10)]
+        [Operation((int)Tokens.MINUS, Affix.InFix, Associativity.Right, 10)]
+        public AST binaryTermNumericExpression(AST left, Token<Tokens> operatorToken, AST right)
+        {
+            var oper = BinaryOperator.ADD;
+
+            switch (operatorToken.TokenID)
+            {
+                case Tokens.PLUS:
+                {
+                    oper = BinaryOperator.ADD;
+                    break;
+                }
+                case Tokens.MINUS:
+                {
+                    oper = BinaryOperator.SUB;
+                    break;
+                }
+            }
+
+            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            return operation;
+        }
+
+        [Operation((int)Tokens.MUL, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.DIVIDE, Affix.InFix, Associativity.Right, 50)]
+        public AST binaryFactorNumericExpression(AST left, Token<Tokens> operatorToken, AST right)
+        {
+            var oper = BinaryOperator.MULTIPLY;
+
+            switch (operatorToken.TokenID)
+            {
+                case Tokens.MUL:
+                {
+                    oper = BinaryOperator.MULTIPLY;
+                    break;
+                }
+                case Tokens.DIVIDE:
+                {
+                    oper = BinaryOperator.DIVIDE;
+                    break;
+                }
+            }
 
             var operation = new BinaryOperation(left as Expression, oper, right as Expression);
             return operation;

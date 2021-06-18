@@ -3,7 +3,7 @@ using sly.lexer;
 
 namespace Analisador.Model
 {
-    public class IdentifierStatement : Statement
+    public class IdentifierStatement : Statement, Expression
     {
         public IdentifierStatement(string name)
         {

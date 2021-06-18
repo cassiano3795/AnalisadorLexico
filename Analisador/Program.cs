@@ -12,7 +12,7 @@ namespace Analisador
         {
             var parser = CParser.CParser.GetParser();
 
-            var result = parser.Parse("switch (a) { case 1: a = 1; return a; case 2: int b; break; default: char c; break; }");
+            var result = parser.Parse("switch (a) { case 1: { a = 2 >= 1 > 1; break; } default: { char c; break; } }");
 
             var currentDirectory = Directory.GetCurrentDirectory();
 
