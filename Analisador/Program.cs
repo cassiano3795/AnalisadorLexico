@@ -11,7 +11,8 @@ namespace Analisador
         static void Main(string[] args)
         {
             var parser = CParser.CParser.GetParser();
-            var result = parser.Parse(" ");
+
+            var result = parser.Parse("switch (a) { case 1: { a = 2 >= 1 > 1; break; } default: { char c; break; } }");
 
             var currentDirectory = Directory.GetCurrentDirectory();
 

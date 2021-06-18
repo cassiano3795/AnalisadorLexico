@@ -17,7 +17,9 @@ namespace Analisador.Model
         AND,
         OR,
         GREATER,
+        GREATEROREQUAL,
         LESSER,
+        LESSEROREQUAL,
         EQUALS,
         DIFFERENT,
         CONCAT
