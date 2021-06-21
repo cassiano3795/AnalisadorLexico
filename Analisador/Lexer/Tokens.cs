@@ -23,6 +23,12 @@ namespace Analisador.Lexer
 
         #region KeyWords
 
+        [Keyword("true")]
+        TRUE,
+
+        [Keyword("false")]
+        FALSE,
+
         [Lexeme(GenericToken.KeyWord, "int")]
         INT,
 
@@ -69,7 +75,7 @@ namespace Analisador.Lexer
         [Lexeme(GenericToken.SugarToken, "*=")]
         MULASSIGN,
 
-        [Lexeme(GenericToken.SugarToken, "=/")]
+        [Lexeme(GenericToken.SugarToken, "/=")]
         DIVIDEASSIGN,
 
         [Lexeme(GenericToken.SugarToken, ",")]
