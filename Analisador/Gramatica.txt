@@ -1,29 +1,37 @@
-<program> ::= <statements>
+<program> ::= <statements> <return>?
 
 <statements> ::= <statement> <statements>+ | <statement>
 <statement> ::= <chardeclaration> | <intdeclaration> | <floatdeclaration> 
-			    <ifstatements> | <switchstatement> | <assignstatement>
+		<ifstatements> | <switchstatement> | <assignstatement>
 
 <chardeclaration> ::= CHAR <ids> SEMI
 <intdeclaration> ::= INT <ids> SEMI
 <floatdeclaration> ::= FLOAT <ids> SEMI
 
-<assignstatement> ::= <assign> SEMI
+<assignstatement> ::= ID <assign> <expression>
 
-<ifstatement> ::= IF LPAREN <condition> RPAREN LBRACKET <statements> RBRACKET <elsestatement>?
-<elsestatement> ::= ELSE <ifstatement> | ELSE LBRACKET <statements> RBRACKET
+<assign> ::= ASSIGN | PLUSASSIGN | MINUSASSIGN | MULASSIGN | DIVIDEASSIGN
+
+<ifstatement> ::= IF LPAREN <condition> RPAREN LBRACKET <statements>? <return>? RBRACKET <elsestatement>?
+<elsestatement> ::= ELSE <ifstatement> | ELSE LBRACKET <statements>? <return>? RBRACKET
 
 <switchstatement> ::= SWITCH LPAREN ID RPAREN LBRACKET <cases> RBRACKET
 
-<cases> ::= CASE <literal> COLON <statements> <finish> SEMI <cases>* | DEFAULT COLON <statements> <finish> SEMI
-<finish> ::= BREAK | <return>
+<cases> ::= CASE <literal> COLON LBRACKET <statements> <finish> RBRACKET <cases>* | DEFAULT COLON LBRACKE <statements> <finish> RBRACKET
+<finish> ::= BREAK SEMI | <return>
 
-<return> ::= RETURN <operand>?
+<return> ::= RETURN <operand>? SEMI
 
-<ids> ::= ID | ID COMMA <ids>+ | <assign> <ids>+
-<assign> ::= ID ASSIGN <expression> | ID ASSIGN <expression> COMMA <ids>+
+<condition> ::= <operand> <relationaloperators> <operand> | <boolean>
+<boolean> ::= TRUE | FALSE
 
-<expression> ::= <operand>
+<relationaloperators> ::= GREATER | GREATEROREQUAL | LESSER | LESSEROREQUAL | EQUALS | DIFFERENT
+
+<ids> ::= ID | ID COMMA <ids>+
+
+<expression> ::= <operand> | <operand> <mathematicaloperators> <operand>
+
+<mathematicaloperators> ::= PLUS | MINUS | MUL | DIVIDE
 		 
 <operand> ::= <literal> | <location>
 

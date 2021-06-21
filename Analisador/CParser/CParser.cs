@@ -108,6 +108,7 @@ namespace Analisador.CParser
         }
 
         [Production("ifstatement: IF LPAREN CParser_expressions RPAREN LBRACKET statements? RBRACKET elsestatement?")]
+        [Production("ifstatement: IF LPAREN boolean RPAREN LBRACKET statements? RBRACKET elsestatement?")]
         public AST IfStatement(Token<Tokens> ifToken, Token<Tokens> lparenToken, Expression condition, Token<Tokens> rparenToken, Token<Tokens> lbracketToken, ValueOption<AST> thenStatement, Token<Tokens> rbracketToken, ValueOption<AST> elseStatement)
         {
             var then = thenStatement.Match(ast => ast, () => null);
@@ -307,6 +308,15 @@ namespace Analisador.CParser
             };
         }
 
+        [Production("boolean: TRUE")]
+        [Production("boolean: FALSE")]
+        public AST Boolean(Token<Tokens> booleanToken)
+        {
+            return new BooleanConstant(bool.Parse(booleanToken.StringWithoutQuotes))
+            {
+                Position = booleanToken.Position
+            };
+        }
 
         [Operation((int)Tokens.LESSER, Affix.InFix, Associativity.Right, 50)]
         [Operation((int)Tokens.LESSEROREQUAL, Affix.InFix, Associativity.Right, 50)]
@@ -341,15 +351,15 @@ namespace Analisador.CParser
             switch (operatorToken.TokenID)
             {
                 case Tokens.PLUS:
-                {
-                    oper = BinaryOperator.ADD;
-                    break;
-                }
+                    {
+                        oper = BinaryOperator.ADD;
+                        break;
+                    }
                 case Tokens.MINUS:
-                {
-                    oper = BinaryOperator.SUB;
-                    break;
-                }
+                    {
+                        oper = BinaryOperator.SUB;
+                        break;
+                    }
             }
 
             var operation = new BinaryOperation(left as Expression, oper, right as Expression);
@@ -365,15 +375,15 @@ namespace Analisador.CParser
             switch (operatorToken.TokenID)
             {
                 case Tokens.MUL:
-                {
-                    oper = BinaryOperator.MULTIPLY;
-                    break;
-                }
+                    {
+                        oper = BinaryOperator.MULTIPLY;
+                        break;
+                    }
                 case Tokens.DIVIDE:
-                {
-                    oper = BinaryOperator.DIVIDE;
-                    break;
-                }
+                    {
+                        oper = BinaryOperator.DIVIDE;
+                        break;
+                    }
             }
 
             var operation = new BinaryOperation(left as Expression, oper, right as Expression);
