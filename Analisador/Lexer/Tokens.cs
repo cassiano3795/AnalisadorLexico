@@ -129,6 +129,12 @@ namespace Analisador.Lexer
         [Lexeme(GenericToken.SugarToken, "!=")]
         DIFFERENT,
 
+        [Sugar("++")]
+        INCREMENT,
+
+        [Sugar("--")]
+        DECREMENT
+
         #endregion
     }
 }

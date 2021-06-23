@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="sly" Version="2.7.0.3" />
+    <Reference Include="sly">
+      <HintPath>..\..\..\Users\cassiano.raupp\Documents\csly\sly\bin\Debug\netstandard2.0\sly.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
