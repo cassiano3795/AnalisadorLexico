@@ -2,13 +2,14 @@
 
 <statements> ::= <statement> <statements>+ | <statement>
 <statement> ::= <chardeclaration> | <intdeclaration> | <floatdeclaration> 
-		<ifstatements> | <switchstatement> | <assignstatement>
+				<ifstatements> | <switchstatement> | <assignstatement>
+				<preincrementstatement> | <postincrementstatement>
 
 <chardeclaration> ::= CHAR <ids> SEMI
 <intdeclaration> ::= INT <ids> SEMI
 <floatdeclaration> ::= FLOAT <ids> SEMI
 
-<assignstatement> ::= ID <assign> <expression>
+<assignstatement> ::= ID <assign> <operand>
 
 <assign> ::= ASSIGN | PLUSASSIGN | MINUSASSIGN | MULASSIGN | DIVIDEASSIGN
 
@@ -16,10 +17,14 @@
 <elsestatement> ::= ELSE <ifstatement> | ELSE LBRACKET <statements>? <return>? RBRACKET
 
 <switchstatement> ::= SWITCH LPAREN ID RPAREN LBRACKET <cases> RBRACKET
-
 <cases> ::= CASE <literal> COLON LBRACKET <statements> <finish> RBRACKET <cases>* | DEFAULT COLON LBRACKE <statements> <finish> RBRACKET
-<finish> ::= BREAK SEMI | <return>
 
+<whilestatement> ::= WHILE LPAREN CParser_expressions_relational RPAREN LBRACKET <statements> RBRACKET
+
+<preincrementstatement> ::= INCREMENT <location> SEMI | DECREMENT <location> SEMI
+<postincrementstatement> ::= <location> INCREMENT SEMI | <location> DECREMENT SEMI
+
+<finish> ::= BREAK SEMI | <return>
 <return> ::= RETURN <operand>? SEMI
 
 <condition> ::= <operand> <relationaloperators> <operand> | <boolean>
@@ -28,10 +33,6 @@
 <relationaloperators> ::= GREATER | GREATEROREQUAL | LESSER | LESSEROREQUAL | EQUALS | DIFFERENT
 
 <ids> ::= ID | ID COMMA <ids>+
-
-<expression> ::= <operand> | <operand> <mathematicaloperators> <operand>
-
-<mathematicaloperators> ::= PLUS | MINUS | MUL | DIVIDE
 		 
 <operand> ::= <literal> | <location>
 

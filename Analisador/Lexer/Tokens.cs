@@ -56,6 +56,9 @@ namespace Analisador.Lexer
         [Lexeme(GenericToken.KeyWord, "default")]
         DEFAULT,
 
+        [Keyword("while")]
+        WHILE,
+
         [Lexeme(GenericToken.KeyWord, "return")]
         RETURN,
 

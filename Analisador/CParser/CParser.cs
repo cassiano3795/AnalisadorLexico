@@ -47,6 +47,7 @@ namespace Analisador.CParser
         [Production("statement: ifstatement")]
         [Production("statement: assignstatement")]
         [Production("statement: switchstatement")]
+        [Production("statement: whilestatement")]
         [Production("statement: preincrementstatement")]
         [Production("statement: postincrementstatement")]
         public AST Statement(AST declaration)
@@ -195,6 +196,18 @@ namespace Analisador.CParser
             };
         }
 
+        [Production("whilestatement: WHILE LPAREN CParser_expressions_relational RPAREN LBRACKET statements? RBRACKET")]
+        public AST WhileStatement(Token<Tokens> whileToken, Token<Tokens> lparenToken, AST expression,
+            Token<Tokens> rparenToken, Token<Tokens> lbracketToken, ValueOption<AST> statements, Token<Tokens> rbracketTokens)
+        {
+            var stm = statements.Match(ast => ast, () => null);
+
+            return new WhileStatement(expression, stm)
+            {
+                Position = whileToken.Position
+            };
+        }
+
         [Production("finish: BREAK")]
         public AST FinishStatement(Token<Tokens> breakToken)
         {
@@ -215,7 +228,7 @@ namespace Analisador.CParser
             return new ReturnStatement(operandValue);
         }
 
-        [Production("assignstatement: location assign expression SEMI")]
+        [Production("assignstatement: location assign operand SEMI")]
         [Production("assignstatement: location assign CParser_expressions_mathematical SEMI")]
         [Production("assignstatement: location assign CParser_expressions_relational SEMI")]
         public AST AssignStatement(AST location, AssignType assignType, Expression expression, Token<Tokens> semiToken)
@@ -290,12 +303,6 @@ namespace Analisador.CParser
             sequence.AddRange(ids);
 
             return sequence;
-        }
-
-        [Production("expression: operand")]
-        public AST Expression(Expression operand)
-        {
-            return operand;
         }
 
         [Operand]

@@ -11,8 +11,8 @@ namespace Analisador
         static void Main(string[] args)
         {
             var parser = CParser.CParser.GetParser();
-
-            var result = parser.Parse("if (a > 3) { a = 1 > 2; a++; }");
+            
+            var result = parser.Parse("while (a <= 2){ if (a == 1){ a += 1; } }");
 
             var currentDirectory = Directory.GetCurrentDirectory();
 
