@@ -29,6 +29,9 @@ namespace Analisador.Lexer
         [Keyword("false")]
         FALSE,
 
+        [Keyword("void")]
+        VOID,
+
         [Lexeme(GenericToken.KeyWord, "int")]
         INT,
 
@@ -58,6 +61,9 @@ namespace Analisador.Lexer
 
         [Keyword("while")]
         WHILE,
+
+        [Keyword("for")]
+        FOR,
 
         [Lexeme(GenericToken.KeyWord, "return")]
         RETURN,

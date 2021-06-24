@@ -1,9 +1,13 @@
 <program> ::= <statements> <return>?
 
+<funcstatement> ::= <returntype> ID LPAREN RPAREN LBRACKET <statements> RBRACKET
+
+<returntype> ::= VOID | INT | CHAR | FLOAT
+
 <statements> ::= <statement> <statements>+ | <statement>
 <statement> ::= <chardeclaration> | <intdeclaration> | <floatdeclaration> 
 				<ifstatements> | <switchstatement> | <assignstatement>
-				<preincrementstatement> | <postincrementstatement>
+				<preincrementstatement> | <postincrementstatement> | <funcstatement>
 
 <chardeclaration> ::= CHAR <ids> SEMI
 <intdeclaration> ::= INT <ids> SEMI
@@ -20,6 +24,8 @@
 <cases> ::= CASE <literal> COLON LBRACKET <statements> <finish> RBRACKET <cases>* | DEFAULT COLON LBRACKE <statements> <finish> RBRACKET
 
 <whilestatement> ::= WHILE LPAREN CParser_expressions_relational RPAREN LBRACKET <statements> RBRACKET
+<forstatement> ::= FOR LPAREN <assignstatement> SEMI CParser_expressions_relational SEMI <preincrementstatement> SEMI RPAREN LBRACKET <statements> RBRACKET |
+				   FOR LPAREN <assignstatement> SEMI CParser_expressions_relational SEMI <postincrementstatement> SEMI RPAREN LBRACKET <statements> RBRACKET
 
 <preincrementstatement> ::= INCREMENT <location> SEMI | DECREMENT <location> SEMI
 <postincrementstatement> ::= <location> INCREMENT SEMI | <location> DECREMENT SEMI

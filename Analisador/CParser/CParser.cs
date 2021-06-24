@@ -19,6 +19,21 @@ namespace Analisador.CParser
             return block;
         }
 
+        [Production("funcstatement: returntype ID LPAREN [d] RPAREN [d] LBRACKET [d] statements? RBRACKET [d]")]
+        public AST FuncStatement(AST returnType, Token<Tokens> idToken, ValueOption<AST> statements)
+        {
+            return new FuncStatement();
+        }
+
+        [Production("returntype: VOID")]
+        [Production("returntype: INT")]
+        [Production("returntype: CHAR")]
+        [Production("returntype: FLOAT")]
+        public AST ReturnType(Token<Tokens> typeToken)
+        {
+            return null;
+        }
+
         [Production("statements: statement")]
         public AST Statements(AST statement)
         {
@@ -41,6 +56,7 @@ namespace Analisador.CParser
             return seq;
         }
 
+        [Production("statement: funcstatement")]
         [Production("statement: intdeclaration")]
         [Production("statement: chardeclaration")]
         [Production("statement: floatdeclaration")]
@@ -48,8 +64,9 @@ namespace Analisador.CParser
         [Production("statement: assignstatement")]
         [Production("statement: switchstatement")]
         [Production("statement: whilestatement")]
-        [Production("statement: preincrementstatement")]
-        [Production("statement: postincrementstatement")]
+        [Production("statement: forstatement")]
+        [Production("statement: preincrementstatement SEMI [d]")]
+        [Production("statement: postincrementstatement SEMI [d]")]
         public AST Statement(AST declaration)
         {
             return declaration;
@@ -208,6 +225,62 @@ namespace Analisador.CParser
             };
         }
 
+        [Production("forstatement: FOR LPAREN [d] assignstatement CParser_expressions_relational SEMI [d] preincrementstatement RPAREN [d] LBRACKET [d] statements? RBRACKET [d]")]
+        [Production("forstatement: FOR LPAREN [d] assignstatement CParser_expressions_relational SEMI [d] postincrementstatement RPAREN [d] LBRACKET [d] statements? RBRACKET [d]")]
+        public AST ForStatement(Token<Tokens> forToken, AST assignStatement, AST expression, AST increment,
+            ValueOption<AST> statements)
+        {
+            var stm = statements.Match(ast => ast, () => null);
+
+            return new ForStatement(assignStatement as AssignStatement, expression, increment, stm)
+            {
+                Position = forToken.Position
+            };
+        }
+
+        [Production("assignstatement: location assign operand SEMI")]
+        [Production("assignstatement: location assign CParser_expressions_mathematical SEMI")]
+        [Production("assignstatement: location assign CParser_expressions_relational SEMI")]
+        public AST AssignStatement(AST location, AssignType assignType, Expression expression, Token<Tokens> semiToken)
+        {
+            var identifier = location as IdentifierStatement;
+
+            return new AssignStatement(identifier.VariableName, assignType, expression)
+            {
+                Position = identifier.Position
+            };
+        }
+
+        [Production("preincrementstatement: INCREMENT location")]
+        [Production("preincrementstatement: DECREMENT location")]
+        public AST PreIncrementExpression(Token<Tokens> incremenToken, AST identifier)
+        {
+            switch (incremenToken.TokenID)
+            {
+                case Tokens.INCREMENT:
+                    return new IncrementStatement(identifier as IdentifierStatement);
+                case Tokens.DECREMENT:
+                    return new DecrementStatement(identifier as IdentifierStatement);
+                default:
+                    return new IncrementStatement(identifier as IdentifierStatement);
+            }
+        }
+
+        [Production("postincrementstatement: location INCREMENT")]
+        [Production("postincrementstatement: location DECREMENT")]
+        public AST PostIncrementExpression(AST identifier, Token<Tokens> incremenToken)
+        {
+            switch (incremenToken.TokenID)
+            {
+                case Tokens.INCREMENT:
+                    return new IncrementStatement(identifier as IdentifierStatement);
+                case Tokens.DECREMENT:
+                    return new DecrementStatement(identifier as IdentifierStatement);
+                default:
+                    return new IncrementStatement(identifier as IdentifierStatement);
+            }
+        }
+
         [Production("finish: BREAK")]
         public AST FinishStatement(Token<Tokens> breakToken)
         {
@@ -226,49 +299,6 @@ namespace Analisador.CParser
             var operandValue = operand.Match(ast => ast, () => null);
 
             return new ReturnStatement(operandValue);
-        }
-
-        [Production("assignstatement: location assign operand SEMI")]
-        [Production("assignstatement: location assign CParser_expressions_mathematical SEMI")]
-        [Production("assignstatement: location assign CParser_expressions_relational SEMI")]
-        public AST AssignStatement(AST location, AssignType assignType, Expression expression, Token<Tokens> semiToken)
-        {
-            var identifier = location as IdentifierStatement;
-
-            return new AssignStatement(identifier.VariableName, assignType, expression)
-            {
-                Position = identifier.Position
-            };
-        }
-
-        [Production("preincrementstatement: INCREMENT location SEMI [d]")]
-        [Production("preincrementstatement: DECREMENT location SEMI [d]")]
-        public AST PreIncrementExpression(Token<Tokens> incremenToken, AST identifier)
-        {
-            switch (incremenToken.TokenID)
-            {
-                case Tokens.INCREMENT:
-                    return new IncrementStatement(identifier as IdentifierStatement);
-                case Tokens.DECREMENT:
-                    return new DecrementStatement(identifier as IdentifierStatement);
-                default:
-                    return new IncrementStatement(identifier as IdentifierStatement);
-            }
-        }
-
-        [Production("postincrementstatement: location INCREMENT SEMI [d]")]
-        [Production("postincrementstatement: location DECREMENT SEMI [d]")]
-        public AST PostIncrementExpression(AST identifier, Token<Tokens> incremenToken)
-        {
-            switch (incremenToken.TokenID)
-            {
-                case Tokens.INCREMENT:
-                    return new IncrementStatement(identifier as IdentifierStatement);
-                case Tokens.DECREMENT:
-                    return new DecrementStatement(identifier as IdentifierStatement);
-                default:
-                    return new IncrementStatement(identifier as IdentifierStatement);
-            }
         }
 
         [Production("assign: ASSIGN")]
@@ -366,12 +396,12 @@ namespace Analisador.CParser
             };
         }
 
-        [Operation((int)Tokens.LESSER, Affix.InFix, Associativity.Right, 50, "relational")]
-        [Operation((int)Tokens.LESSEROREQUAL, Affix.InFix, Associativity.Right, 50, "relational")]
-        [Operation((int)Tokens.GREATER, Affix.InFix, Associativity.Right, 50, "relational")]
-        [Operation((int)Tokens.GREATEROREQUAL, Affix.InFix, Associativity.Right, 50, "relational")]
-        [Operation((int)Tokens.EQUALS, Affix.InFix, Associativity.Right, 50, "relational")]
-        [Operation((int)Tokens.DIFFERENT, Affix.InFix, Associativity.Right, 50, "relational")]
+        [Operation((int)Tokens.LESSER, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.LESSEROREQUAL, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.GREATER, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.GREATEROREQUAL, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.EQUALS, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.DIFFERENT, Affix.InFix, Associativity.Right, 50)]
         public AST BinaryComparisonExpression(AST left, Token<Tokens> operatorToken,
             AST right)
         {
@@ -390,8 +420,8 @@ namespace Analisador.CParser
             return operation;
         }
 
-        [Operation((int)Tokens.PLUS, Affix.InFix, Associativity.Right, 10, "mathematical")]
-        [Operation((int)Tokens.MINUS, Affix.InFix, Associativity.Right, 10, "mathematical")]
+        [Operation((int)Tokens.PLUS, Affix.InFix, Associativity.Right, 10)]
+        [Operation((int)Tokens.MINUS, Affix.InFix, Associativity.Right, 10)]
         public AST BinaryTermNumericExpression(AST left, Token<Tokens> operatorToken, AST right)
         {
             var oper = BinaryOperator.ADD;
@@ -414,8 +444,8 @@ namespace Analisador.CParser
             return operation;
         }
 
-        [Operation((int)Tokens.MUL, Affix.InFix, Associativity.Right, 50, "mathematical")]
-        [Operation((int)Tokens.DIVIDE, Affix.InFix, Associativity.Right, 50, "mathematical")]
+        [Operation((int)Tokens.MUL, Affix.InFix, Associativity.Right, 50)]
+        [Operation((int)Tokens.DIVIDE, Affix.InFix, Associativity.Right, 50)]
         public AST BinaryFactorNumericExpression(AST left, Token<Tokens> operatorToken, AST right)
         {
             var oper = BinaryOperator.MULTIPLY;
