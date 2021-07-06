@@ -19,8 +19,8 @@ namespace Analisador.CParser
             return block;
         }
 
-        [Production("funcstatement: returntype ID LPAREN [d] RPAREN [d] LBRACKET [d] statements? RBRACKET [d]")]
-        public AST FuncStatement(AST returnType, Token<Tokens> idToken, ValueOption<AST> statements)
+        [Production("funcstatement: returntype ID LPAREN [d] RPAREN [d] LBRACKET [d] statements? return SEMI [d] RBRACKET [d]")]
+        public AST FuncStatement(AST returnType, Token<Tokens> idToken, ValueOption<AST> statements, AST returnAst)
         {
             return new FuncStatement();
         }
@@ -129,8 +129,7 @@ namespace Analisador.CParser
             return floatDeclaration;
         }
 
-        [Production("ifstatement: IF LPAREN CParser_expressions_relational RPAREN LBRACKET statements? RBRACKET elsestatement?")]
-        [Production("ifstatement: IF LPAREN boolean RPAREN LBRACKET statements? RBRACKET elsestatement?")]
+        [Production("ifstatement: IF LPAREN CParser_expressions RPAREN LBRACKET statements? RBRACKET elsestatement?")]
         public AST IfStatement(Token<Tokens> ifToken, Token<Tokens> lparenToken, Expression condition, Token<Tokens> rparenToken, Token<Tokens> lbracketToken, ValueOption<AST> thenStatement, Token<Tokens> rbracketToken, ValueOption<AST> elseStatement)
         {
             var then = thenStatement.Match(ast => ast, () => null);
@@ -213,7 +212,7 @@ namespace Analisador.CParser
             };
         }
 
-        [Production("whilestatement: WHILE LPAREN CParser_expressions_relational RPAREN LBRACKET statements? RBRACKET")]
+        [Production("whilestatement: WHILE LPAREN CParser_expressions RPAREN LBRACKET statements? RBRACKET")]
         public AST WhileStatement(Token<Tokens> whileToken, Token<Tokens> lparenToken, AST expression,
             Token<Tokens> rparenToken, Token<Tokens> lbracketToken, ValueOption<AST> statements, Token<Tokens> rbracketTokens)
         {
@@ -225,8 +224,8 @@ namespace Analisador.CParser
             };
         }
 
-        [Production("forstatement: FOR LPAREN [d] assignstatement CParser_expressions_relational SEMI [d] preincrementstatement RPAREN [d] LBRACKET [d] statements? RBRACKET [d]")]
-        [Production("forstatement: FOR LPAREN [d] assignstatement CParser_expressions_relational SEMI [d] postincrementstatement RPAREN [d] LBRACKET [d] statements? RBRACKET [d]")]
+        [Production("forstatement: FOR LPAREN [d] assignstatement CParser_expressions SEMI [d] preincrementstatement RPAREN [d] LBRACKET [d] statements? RBRACKET [d]")]
+        [Production("forstatement: FOR LPAREN [d] assignstatement CParser_expressions SEMI [d] postincrementstatement RPAREN [d] LBRACKET [d] statements? RBRACKET [d]")]
         public AST ForStatement(Token<Tokens> forToken, AST assignStatement, AST expression, AST increment,
             ValueOption<AST> statements)
         {
@@ -239,8 +238,8 @@ namespace Analisador.CParser
         }
 
         [Production("assignstatement: location assign operand SEMI")]
-        [Production("assignstatement: location assign CParser_expressions_mathematical SEMI")]
-        [Production("assignstatement: location assign CParser_expressions_relational SEMI")]
+        [Production("assignstatement: location assign CParser_expressions SEMI")]
+        [Production("assignstatement: location assign CParser_expressions SEMI")]
         public AST AssignStatement(AST location, AssignType assignType, Expression expression, Token<Tokens> semiToken)
         {
             var identifier = location as IdentifierStatement;

@@ -11,8 +11,11 @@ namespace Analisador
         static void Main(string[] args)
         {
             var parser = CParser.CParser.GetParser();
-            
-            var result = parser.Parse("void Print(){ while(a < 4){ if (a == 3){ a++; } } }");
+
+            var code = @"void Print(){ while(a < 4){ if (a == 3){ a++; } else { switch(a){ case 1: { a++; break; } } } } return; }";
+
+            var lex = parser.Lexer.Tokenize(code);
+            var result = parser.Parse(code);
 
             var currentDirectory = Directory.GetCurrentDirectory();
 
